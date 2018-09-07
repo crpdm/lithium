@@ -69,7 +69,12 @@ def make_env(bin_path, curr_env=None):  # pylint: disable=missing-docstring,miss
     curr_env = curr_env or os.environ
     env = utils.env_with_path(os.path.abspath(os.path.dirname(bin_path)), curr_env=curr_env)
 
-    env["ASAN_OPTIONS"] = "exitcode=" + str(ASAN_EXIT_CODE)
+    exitcode_opt = "exitcode=" + str(ASAN_EXIT_CODE)
+    if "ASAN_OPTIONS" in env:
+        env["ASAN_OPTIONS"] += ":" + exitcode_opt
+    else:
+        env["ASAN_OPTIONS"] = exitcode_opt
+    
     symbolizer_path = utils.find_llvm_bin_path()
     if symbolizer_path is not None:
         env["ASAN_SYMBOLIZER_PATH"] = os.path.join(symbolizer_path, "llvm-symbolizer")
